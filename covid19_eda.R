@@ -5,6 +5,9 @@ library(R.COVID.19)
 library(tidyverse)
 library(sf)
 
+# Parameters
+state <- "Minnesota"
+
 # Load data
 
 cnty_data_shp <- R.COVID.19::pub_hlth_status_by_cnty_shp()
@@ -12,12 +15,28 @@ cnty_data_shp <- R.COVID.19::pub_hlth_status_by_cnty_shp()
 cnty_data <- R.COVID.19::us_geo_confirmed_daily() %>% 
   dplyr::mutate(fips = forcats::as_factor(FIPS))
 
-
 cnty_shp <- cnty_data %>% 
-  dplyr::left_join(cnty_data_shp, by = c("fips" = "fips"))
+  dplyr::left_join(cnty_data_shp, by = c("fips" = "fips")) 
+
+cnty_shp <- sf::st_as_sf(cnty_shp)
 
 cnty_shp %>% #View()
-  dplyr::filter(Province_State %in% c("Minnesota")) %>%
+  dplyr::filter(Province_State %in% c("California")) %>%
   View()
 
-length(unique(cnty_shp$fips))
+class(cnty_shp)
+attr(cnty_shp, "sf_column")
+st_crs(cnty_shp)
+
+# Validation
+
+us_map <- sf::st_union(cnty_shp$geometry) # No california, colorado, arizona, arkansa, mississippi
+
+cnty_data_shp %>% filter(state_name == "Colorado") %>% View()
+cnty_data %>% filter(Province_State == "Colorado") %>% View()
+
+tig_ca <- tigris::counties("California", cb = TRUE)
+tig_ca_sf <- sf::st_as_sf(tig_ca)
+rhead(tig_ca) %>% View()
+
+# Build a map from the shape file
