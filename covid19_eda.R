@@ -49,5 +49,11 @@ tigris_states <- function(state) {
 tig_ca_sf_2 <- tigris_states(state = state) 
 
 tig_st_sf <- purrr::map_dfr(state.name, tigris_states) 
-str(tig_st_sf)
+
+tig_st_sf %>% filter(STATEFP == "06") %>%
+  ggplot2::ggplot(aes(fill= ALAND)) +
+  geom_sf(color = NA) + 
+  #coord_sf(crs = 26911) + 
+  scale_fill_viridis_c(option = "magma") 
+  
 # Build a map from the shape file
