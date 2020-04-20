@@ -6,7 +6,7 @@ library(tidyverse)
 library(sf)
 
 # Parameters
-state <- "Minnesota"
+state <- "California"
 
 # Load data
 
@@ -37,6 +37,17 @@ cnty_data %>% filter(Province_State == "Colorado") %>% View()
 
 tig_ca <- tigris::counties("California", cb = TRUE)
 tig_ca_sf <- sf::st_as_sf(tig_ca)
-rhead(tig_ca) %>% View()
+head(tig_ca_sf) %>% head() %>% View()
+str(tig_ca_sf)
+plot(tig_ca_sf)
 
+tigris_states <- function(state) {
+  geo_df <- tigris::counties(state, cb = TRUE) %>% 
+    sf::st_as_sf(.)
+}
+  
+tig_ca_sf_2 <- tigris_states(state = state) 
+
+tig_st_sf <- purrr::map_dfr(state.name, tigris_states) 
+str(tig_st_sf)
 # Build a map from the shape file
