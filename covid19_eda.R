@@ -6,17 +6,21 @@ library(tidyverse)
 library(sf)
 
 # Parameters
-state <- "California"
+state <- "Minnesota"
 
 # Load data
 
-cnty_data_shp <- R.COVID.19::pub_hlth_status_by_cnty_shp()
+#cnty_data_shp <- R.COVID.19::pub_hlth_status_by_cnty_shp()
+cnty_data_shp <- sf::read_sf("./COVID19_Public_Health_Emergency_Status_by_County.shp")
 
 cnty_data <- R.COVID.19::us_geo_confirmed_daily() %>% 
-  dplyr::mutate(fips = forcats::as_factor(FIPS))
+  dplyr::mutate(uid = stringr::str_pad(.$UID,8,side = "left" , 0),
+    fips = stringr::str_sub(uid, start = 4,end = 8))
 
 cnty_shp <- cnty_data %>% 
   dplyr::left_join(cnty_data_shp, by = c("fips" = "fips")) 
+
+cnty_shp %>% dplyr::filter(is.na(.data$objectid) == TRUE) %>% distinct(Province_State) %>% View()
 
 cnty_shp <- sf::st_as_sf(cnty_shp)
 
