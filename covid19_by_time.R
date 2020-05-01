@@ -29,16 +29,21 @@ cnty_data_shp <- sf::st_as_sf(cnty_data_shp)
 
 map_base <- cnty_data_shp %>% #filter(greg_d == as.Date('2020-04-24')) %>% 
   filter(Province_State == "Minnesota") %>% 
-  ggplot(aes(fill = log2(.data$daily_delta), frame = greg_d)) +
-  geom_sf(color = NA) +
-  coord_sf(crs = "WGS84") + 
-  scale_fill_viridis_c(option = "plasma") 
+  ggplot(aes(fill = log2(.data$confirmed_cases), frame = .data$greg_d)) +
+  geom_sf() +
+  #coord_sf(crs = "WGS84") + 
+  scale_fill_viridis_c(option = "plasma") +
+  transition_time(.data$greg_d) +
+  gganimate::view_follow() 
+  transition_states(.data$greg_d,
+                    transition_length = 1,
+                    state_length = 1)
 
 map_animate <- map_base +
   gganimate::view_follow()
 
-animate(map_animate,end_pause=25, nframes=85,fps=1)
-save_animation(last_animation(), file="./test_animation.gif")
+animate(map_animate,nframes=100,fps=1)
+gganimate::save_animation(last_animation(), file="./test_animation.gif")
 gganimate::an
 
 #gganimate example
